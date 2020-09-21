@@ -1,26 +1,7 @@
-# A Social App (socialapp)
+# A Social App (socialapp) 🖥🖥
 
 A Social App
 
-## Install the dependencies
-```bash
-yarn
-```
-
-### Start the app in development mode (hot-code reloading, error reporting, etc.)
-```bash
-quasar dev
-```
-
-### Lint the files
-```bash
-yarn run lint
-```
-
-### Build the app for production
-```bash
-quasar build
-```
-
-### Customize the configuration
-See [Configuring quasar.conf.js](https://quasar.dev/quasar-cli/quasar-conf-js).
+## A Social App which consumes the Social App Api I built 💻💻
+- [Link to Api](https://github.com/EzekielWachira/Social-app-api).
+## Work ongoing 🛠🔨🔧
