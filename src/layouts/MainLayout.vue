@@ -1,44 +1,47 @@
 <template>
   <q-layout view="lHh Lpr lFf">
-    <q-header elevated>
-      <q-toolbar>
-        <q-btn
-          flat
-          dense
-          round
-          icon="menu"
-          aria-label="Menu"
-          @click="leftDrawerOpen = !leftDrawerOpen"
-        />
+    <q-header elevated class="bg-positive">
+      <q-toolbar class="q-px-lg">
 
         <q-toolbar-title>
-          Quasar App
+          <div class="row"><strong class="text-cyan-12">Kkonnect</strong></div>
         </q-toolbar-title>
+        <q-space/>
+        <div class="YL__toolbar-input-container row no-wrap">
+          <q-input dense outlined square v-model="search" placeholder="Search" class="bg-white col" />
+          <q-btn class="YL__toolbar-input-btn" color="grey-3" text-color="grey-8" icon="search" unelevated />
+        </div>
 
-        <div>Quasar v{{ $q.version }}</div>
+        <q-space />
+
+        <div class="q-gutter-sm row items-center no-wrap">
+          <q-btn round dense flat icon="home" to="/" v-if="$q.screen.gt.sm">
+            <q-tooltip>Navigate to home</q-tooltip>
+          </q-btn>
+          <q-btn round dense flat icon="video_call" v-if="$q.screen.gt.sm">
+            <q-tooltip>Create a video or post</q-tooltip>
+          </q-btn>
+          <q-btn round dense flat icon="apps" v-if="$q.screen.gt.sm">
+            <q-tooltip>Apps</q-tooltip>
+          </q-btn>
+          <q-btn round dense flat icon="message" v-if="$q.screen.gt.sm">
+            <q-tooltip>Messages</q-tooltip>
+          </q-btn>
+          <q-btn round dense flat icon="notifications">
+            <q-badge color="red" text-color="white" floating>
+              2
+            </q-badge>
+            <q-tooltip>Notifications</q-tooltip>
+          </q-btn>
+          <q-btn round flat>
+            <q-avatar size="26px">
+              <img src="/images/ezzy.jpg">
+            </q-avatar>
+            <q-tooltip>Account</q-tooltip>
+          </q-btn>
+        </div>
       </q-toolbar>
     </q-header>
-
-    <q-drawer
-      v-model="leftDrawerOpen"
-      show-if-above
-      bordered
-      content-class="bg-grey-1"
-    >
-      <q-list>
-        <q-item-label
-          header
-          class="text-grey-8"
-        >
-          Essential Links
-        </q-item-label>
-        <EssentialLink
-          v-for="link in essentialLinks"
-          :key="link.title"
-          v-bind="link"
-        />
-      </q-list>
-    </q-drawer>
 
     <q-page-container>
       <router-view />
@@ -47,61 +50,29 @@
 </template>
 
 <script>
-import EssentialLink from 'components/EssentialLink.vue'
-
-const linksData = [
-  {
-    title: 'Docs',
-    caption: 'quasar.dev',
-    icon: 'school',
-    link: 'https://quasar.dev'
-  },
-  {
-    title: 'Github',
-    caption: 'github.com/quasarframework',
-    icon: 'code',
-    link: 'https://github.com/quasarframework'
-  },
-  {
-    title: 'Discord Chat Channel',
-    caption: 'chat.quasar.dev',
-    icon: 'chat',
-    link: 'https://chat.quasar.dev'
-  },
-  {
-    title: 'Forum',
-    caption: 'forum.quasar.dev',
-    icon: 'record_voice_over',
-    link: 'https://forum.quasar.dev'
-  },
-  {
-    title: 'Twitter',
-    caption: '@quasarframework',
-    icon: 'rss_feed',
-    link: 'https://twitter.quasar.dev'
-  },
-  {
-    title: 'Facebook',
-    caption: '@QuasarFramework',
-    icon: 'public',
-    link: 'https://facebook.quasar.dev'
-  },
-  {
-    title: 'Quasar Awesome',
-    caption: 'Community Quasar projects',
-    icon: 'favorite',
-    link: 'https://awesome.quasar.dev'
-  }
-];
-
 export default {
-  name: 'MainLayout',
-  components: { EssentialLink },
-  data () {
-    return {
-      leftDrawerOpen: false,
-      essentialLinks: linksData
-    }
-  }
+  data: () => ({
+  //
+  })
 }
 </script>
+<style lang="sass">
+.YL
+  &__toolbar-input-container
+    min-width: 100px
+    width: 55%
+  &__toolbar-input-btn
+    border-radius: 0
+    border-style: solid
+    border-width: 1px 1px 1px 0
+    border-color: rgba(0,0,0,.24)
+    max-width: 60px
+    width: 100%
+  &__drawer-footer-link
+    color: inherit
+    text-decoration: none
+    font-weight: 500
+    font-size: .75rem
+    &:hover
+      color: #000
+</style>
