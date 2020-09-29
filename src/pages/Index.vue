@@ -143,7 +143,6 @@
               </q-card-section>
               <q-separator spaced/>
               <q-card-section class="row q-pt-none">
-                <q-btn color="positive" no-caps icon-right="add" label="Create Post" dense class="q-px-xs"/>
                 <q-btn color="positive" no-caps icon-right="add" label="Create Post" dense class="q-px-xs"
                   @click="postDialog = true"/>
                 <q-space/>
