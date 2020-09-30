@@ -1,6 +1,6 @@
 <template>
   <div class="flex flex-center q-pt-lg">
-  <q-form class="register-form ">
+  <q-form class="register-form " @submit.prevent="register">
     <q-card class="register-card">
       <q-toolbar class="text-white q-mb-sm" style="background: radial-gradient(circle, #47c5ff 0%, #12d108 100%)">
         <q-toolbar-title>Register an account</q-toolbar-title>
@@ -86,6 +86,7 @@
 </template>
 
 <script>
+import User from 'src/Api/User'
 export default {
   name: 'Register.vue',
   data: () => ({
@@ -97,7 +98,17 @@ export default {
     },
     isPassword: true,
     acceptTerms: false
-  })
+  }),
+  methods: {
+    register () {
+      User.register(this.formData)
+        .then(() => {
+          this.$router.push('/login')
+        }).catch(error => {
+          console.log(error)
+        })
+    }
+  }
 }
 </script>
 
