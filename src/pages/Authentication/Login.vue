@@ -1,6 +1,6 @@
 <template>
   <div class="flex flex-center q-pt-lg">
-    <q-form class="register-form">
+    <q-form class="register-form" @submit.prevent="login">
       <q-card class="register-card">
         <q-toolbar class="text-white q-mb-sm" style="background: radial-gradient(circle, #47c5ff 0%, #12d108 100%)">
           <q-toolbar-title>Login into your account</q-toolbar-title>
@@ -49,6 +49,7 @@
 </template>
 
 <script>
+import User from 'src/Api/User'
 export default {
   name: 'Login',
   data: () => ({
@@ -57,7 +58,19 @@ export default {
       password: ''
     },
     isPassword: true
-  })
+  }),
+  methods: {
+    login () {
+      User.login(this.formData)
+        .then(response => {
+          this.$root.$emit('login', true)
+          localStorage.setItem('token', response.data)
+          this.$router.push('/')
+        }).catch(error => {
+          console.log(error)
+        })
+    }
+  }
 }
 </script>
 

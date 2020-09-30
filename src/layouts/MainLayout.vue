@@ -1,7 +1,8 @@
 <template>
-  <q-layout view="lHh Lpr lFf">
+  <q-layout view="hHh lpR lFf">
     <q-header elevated class="bg-positive">
       <q-toolbar class="q-px-lg">
+        <q-btn icon="menu" flat @click="drawer = !drawer"/>
 
         <q-toolbar-title>
           <div class="row"><strong class="text-cyan-12">Kkonnect</strong></div>
@@ -42,6 +43,33 @@
         </div>
       </q-toolbar>
     </q-header>
+    <q-drawer
+      v-model="drawer"
+      show-if-above
+      :width="250"
+      :breakpoint="700"
+      elevated
+      content-class="bg- text-"
+    >
+      <q-list padding class="rounded-borders" style="ma" >
+<!--        <q-item-label header class="q-mt-md q-ml-md text-h6 text-positive">Kkonnect</q-item-label>-->
+
+        <q-item clickable v-ripple v-for="link in links" :key="link.title">
+          <q-item-section avatar top>
+            <q-avatar :icon="link.icon" :color="link.badge_color" text-color="white" />
+          </q-item-section>
+
+          <q-item-section>
+            <q-item-label lines="1">{{ link.title }}</q-item-label>
+            <q-item-label caption>February 22nd, 2019</q-item-label>
+          </q-item-section>
+
+          <q-item-section side>
+            <q-badge :color="link.badge_color">{{ link.badge }}</q-badge>
+          </q-item-section>
+        </q-item>>
+      </q-list>
+    </q-drawer>
 
     <q-page-container>
       <router-view />
@@ -50,9 +78,21 @@
 </template>
 
 <script>
+const links = [
+  { title: 'Events', icon: 'event', badge: 3, badge_color: 'orange' },
+  { title: 'Calendar', icon: 'today', badge: 5, badge_color: 'primary' },
+  { title: 'Forums', icon: 'forum', badge: 1, badge_color: 'accent' },
+  { title: 'Bookmarks', icon: 'bookmark', badge: 10, badge_color: 'secondary' },
+  { title: 'Tags', icon: 'tag', badge: 13, badge_color: 'blue' },
+  { title: 'Topics', icon: 'topic', badge: 7, badge_color: 'brown' },
+  { title: 'Files', icon: 'assignment', badge: 32, badge_color: 'teal' },
+  { title: 'Meetings', icon: 'group', badge: 5, badge_color: 'light-blue-14' },
+  { title: 'My Todos', icon: 'list', badge: 4, badge_color: 'purple' }
+]
 export default {
   data: () => ({
-  //
+    links,
+    drawer: true
   })
 }
 </script>
