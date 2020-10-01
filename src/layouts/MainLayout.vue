@@ -1,5 +1,5 @@
 <template>
-  <q-layout view="hHh lpR lFf">
+  <q-layout view="hHh LpR fFr">
     <q-header elevated class="bg-positive">
       <q-toolbar class="q-px-lg">
         <q-btn icon="menu" flat @click="drawer = !drawer"/>
@@ -9,14 +9,14 @@
         </q-toolbar-title>
         <q-space/>
         <div class="YL__toolbar-input-container row no-wrap">
-          <q-input dense outlined square v-model="search" placeholder="Search" class="bg-white col" />
+          <q-input dense outlined square placeholder="Search" class="bg-white col" />
           <q-btn class="YL__toolbar-input-btn" color="grey-3" text-color="grey-8" icon="search" unelevated />
         </div>
 
         <q-space />
 
         <div class="q-gutter-sm row items-center no-wrap">
-          <q-btn round dense flat icon="home" to="/" v-if="$q.screen.gt.sm">
+          <q-btn round dense flat icon="home" to="/home" v-if="$q.screen.gt.sm">
             <q-tooltip>Navigate to home</q-tooltip>
           </q-btn>
           <q-btn round dense flat icon="video_call" v-if="$q.screen.gt.sm">
@@ -34,24 +34,24 @@
             </q-badge>
             <q-tooltip>Notifications</q-tooltip>
           </q-btn>
-          <q-btn round flat>
+          <q-btn round flat @click.prevent="logout">
             <q-avatar size="26px">
               <img src="/images/ezzy.jpg">
             </q-avatar>
             <q-tooltip>Account</q-tooltip>
           </q-btn>
         </div>
+        <q-btn icon="menu" @click="rightDrawer = !rightDrawer" flat dense round v-if="!$q.screen.gt.sm"/>
       </q-toolbar>
     </q-header>
     <q-drawer
       v-model="drawer"
       show-if-above
-      :width="250"
-      :breakpoint="700"
-      elevated
+      :width="270"
+      :breakpoint="700" class="shadow-2"
       content-class="bg- text-"
     >
-      <q-list padding class="rounded-borders" style="ma" >
+      <q-list padding class="rounded-borders" style="menu_list" >
 <!--        <q-item-label header class="q-mt-md q-ml-md text-h6 text-positive">Kkonnect</q-item-label>-->
 
         <q-item clickable v-ripple v-for="link in links" :key="link.title">
@@ -69,6 +69,31 @@
           </q-item-section>
         </q-item>>
       </q-list>
+    </q-drawer>
+    <q-drawer show-if-above v-model="rightDrawer" side="right" bordered :width="360">
+      <q-scroll-area
+        class="fit"
+        :thumb-style="thumbStyle"
+        :bar-style="barStyle"
+      >
+      <div class="q-pa-md">
+        <q-card v-for="n in 10" :key="n" class="q-mb-sm" square>
+          <q-card-section class="row q-gutter-x-sm">
+            <q-avatar color="blue">
+              <q-img src="/images/ezzy.jpg"/>
+            </q-avatar>
+            <div class="column">
+              <div class="text-subtitle1">Jane Doe</div>
+              <div class="text-subtitle2">Managing Director</div>
+            </div>
+          </q-card-section>
+          <q-card-actions align="right" class="q-pt-none">
+            <q-space/>
+            <q-btn dense label="Follow" icon-right="add" class="q-px-xs" no-caps color="positive"/>
+          </q-card-actions>
+        </q-card>
+      </div>
+      </q-scroll-area>
     </q-drawer>
 
     <q-page-container>
@@ -89,14 +114,51 @@ const links = [
   { title: 'Meetings', icon: 'group', badge: 5, badge_color: 'light-blue-14' },
   { title: 'My Todos', icon: 'list', badge: 4, badge_color: 'purple' }
 ]
+const thumbStyle = {
+  right: '4px',
+  borderRadius: '5px',
+  backgroundColor: '#1ad20d',
+  width: '5px',
+  opacity: 0.75
+}
+const barStyle = {
+  right: '2px',
+  borderRadius: '9px',
+  backgroundColor: '#1ad20d',
+  width: '9px',
+  opacity: 0.2
+}
+import User from 'src/Api/User'
 export default {
   data: () => ({
     links,
-    drawer: true
-  })
+    drawer: true,
+    isLoggedIn: false,
+    user: {},
+    rightDrawer: false,
+    thumbStyle,
+    barStyle
+  }),
+  mounted () {
+    User.auth().then(response => {
+      this.user = response.data
+    })
+    this.$root.$on('login', () => {
+      this.isLoggedIn = true
+    })
+  },
+  methods: {
+    logout () {
+      User.logout().then(() => {
+        localStorage.removeItem('token')
+        this.isLoggedIn = false
+        this.$router.push('/login')
+      })
+    }
+  }
 }
 </script>
-<style lang="sass">
+<style lang="sass" scoped>
 .YL
   &__toolbar-input-container
     min-width: 100px
@@ -115,4 +177,6 @@ export default {
     font-size: .75rem
     &:hover
       color: #000
+.menu-list .q-item
+  border-radius: 0 32px 32px 0
 </style>

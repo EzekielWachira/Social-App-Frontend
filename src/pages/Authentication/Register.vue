@@ -87,6 +87,7 @@
 
 <script>
 import User from 'src/Api/User'
+import Csrf from 'src/Api/Csrf'
 export default {
   name: 'Register.vue',
   data: () => ({
@@ -101,6 +102,9 @@ export default {
   }),
   methods: {
     register () {
+      Csrf.getCookie().then(() => {
+
+      })
       User.register(this.formData)
         .then(() => {
           this.$router.push('/login')
