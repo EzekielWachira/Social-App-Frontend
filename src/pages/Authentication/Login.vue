@@ -38,9 +38,16 @@
         <q-card-actions align="center" class="column q-gutter-y-sm">
           <q-btn label="Login" class="q-px-md text-white"
                  type="submit" flat
+                 :loading="submitting"
                  :disable="formData.email === '' || formData.password === '' || formData.password.length < 6"
                  style="background: radial-gradient(circle, #47c5ff 0%, #12d108 100%)"
-          />
+          >
+            <template v-slot:loading>
+              <q-spinner-facebook
+                color="white"
+              />
+            </template>
+          </q-btn>
           <div class="text-positive text-subtitle1 cursor-pointer">Forgot your password? </div>
         </q-card-actions>
       </q-card>
@@ -57,12 +64,15 @@ export default {
       email: '',
       password: ''
     },
-    isPassword: true
+    isPassword: true,
+    submitting: false
   }),
   methods: {
     login () {
+      this.submitting = true
       User.login(this.formData)
         .then(response => {
+          this.submitting = false
           this.$root.$emit('login', true)
           localStorage.setItem('token', response.data)
           this.$router.push('/')

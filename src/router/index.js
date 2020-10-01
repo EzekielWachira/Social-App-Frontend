@@ -22,9 +22,35 @@ export default function (/* { store, ssrContext } */) {
     // Leave these as they are and change in quasar.conf.js instead!
     // quasar.conf.js -> build -> vueRouterMode
     // quasar.conf.js -> build -> publicPath
-    mode: 'history',
+    mode: process.env.VUE_ROUTER_MODE,
     base: process.env.VUE_ROUTER_BASE
   })
+  // function isLoggedIn () {
+  //   return !!localStorage.getItem('token')
+  // }
+  // Router.beforeEach((to, from, next) => {
+  //   if (to.matched.some(record => record.meta.requiresAuth)) {
+  //     // this route requires auth, check if logged in
+  //     // if not, redirect to login page.
+  //     if (!isLoggedIn()) {
+  //       next({
+  //         path: '/login',
+  //         query: { redirect: to.fullPath }
+  //       })
+  //     } else {
+  //       next()
+  //     }
+  //   } else if (to.matched.some(record => record.meta.guestOnly)) {
+  //     if (isLoggedIn()) {
+  //       next({
+  //         path: '/',
+  //         query: { redirect: to.fullPath }
+  //       })
+  //     }
+  //   } else {
+  //     next() // make sure to always call next()!
+  //   }
+  // })
 
   return Router
 }

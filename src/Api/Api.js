@@ -11,5 +11,5 @@ const Api = () => {
   }
   return BaseApi
 }
-
+Api().defaults.withCredentials = true
 export default Api
