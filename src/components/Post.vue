@@ -17,7 +17,7 @@
     <q-separator spaced/>
     <q-card-actions align="left">
       <q-btn icon="thumb_up" flat round/>
-      <q-btn icon="comment" flat round/>
+      <q-btn icon="comment" flat round @click="initCommentDialog"/>
       <q-btn icon="share" flat round/>
       <div class="row q-gutter-x-sm">
         <div class="text-subtitle2">12 Likes 💙</div>
@@ -29,7 +29,12 @@
 
 <script>
 export default {
-  name: 'Post'
+  name: 'Post',
+  methods: {
+    initCommentDialog () {
+      this.$root.$emit('initComment')
+    }
+  }
 }
 </script>
 

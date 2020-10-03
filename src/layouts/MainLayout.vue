@@ -46,7 +46,7 @@
     </q-header>
     <q-drawer
       v-model="drawer"
-      show-if-above
+      show-if-above bordered
       :width="270"
       :breakpoint="700" class="shadow-2"
       content-class="bg- text-"

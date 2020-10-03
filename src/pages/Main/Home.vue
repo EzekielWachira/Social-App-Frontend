@@ -1,7 +1,7 @@
 <template>
     <div>
-      <div class="col-12">
-        <q-list bordered padding class="q-px-md">
+      <div>
+        <q-list padding class="q-px-md">
           <q-item-label class="q-px-md">
             <q-card style="width: 100%;">
               <q-card-section class="q-mb-none">
@@ -22,6 +22,38 @@
               </q-card-section>
             </q-card>
           </q-item-label>
+          <q-item v-for="(post, index) in posts" :key="index">
+            <q-card class="col-12">
+              <q-card-section class="row q-gutter-x-sm">
+                <q-avatar color="blue">
+                  <q-img src="/images/ezzy.jpg"/>
+                </q-avatar>
+                <div class="column">
+                  <div class="text-subtitle2">{{post.user.name}}</div>
+                  <div class="text-subtitle1">{{post.created_at}}</div>
+                </div>
+                <q-space/>
+                <q-btn icon="more_horiz" flat dense round/>
+              </q-card-section>
+              <q-card-section>
+                <div class="text-h6">{{post.title}}</div>
+              </q-card-section>
+              <q-card-section>
+                <div class="bg-blue text-white" style="height: 70px;">{{post.body}}</div>
+              </q-card-section>
+              <q-separator spaced/>
+              <q-card-actions align="left">
+                <q-btn icon="thumb_up" flat round :color="post.likes.length > 0 ? 'primary' : 'grey-8'"
+                       @click="postLike(index + 1)"/>
+                <q-btn icon="comment" flat round @click="openCommentDialog(index + 1)"/>
+                <q-btn icon="share" flat round/>
+                <div class="row q-gutter-x-sm">
+                  <div class="text-subtitle2">12 Likes 💙</div>
+                  <div class="text-subtitle2">2 Comments 🤙</div>
+                </div>
+              </q-card-actions>
+            </q-card>
+          </q-item>
           <q-infinite-scroll @load="onLoad" :offset="250">
             <q-item v-for="(item, index) in items" :key="index">
               <Post style="width: 100%;"/>
@@ -75,26 +107,173 @@
         </q-card-actions>
       </q-card>
     </q-dialog>
+      <q-dialog v-model="commentDialog" class="post-dialog" persistent>
+        <q-card class="dialog-card">
+          <q-card-section>
+            <q-toolbar class="text-white" style="background: radial-gradient(circle, #47c5ff 0%, #12d108 100%)">
+              <q-toolbar-title>Post a comment</q-toolbar-title>
+              <q-space/>
+              <q-btn icon="image" flat round dense></q-btn>
+              <q-btn icon="video_call" flat round dense/>
+              <div>{{selectedPostIndex}}</div>
+            </q-toolbar>
+          </q-card-section>
+          <q-card-section>
+            <q-list v-if="postComments.length !== 0">
+              <q-scroll-area style="height: 200px; " :bar-style="barStyle" :thumb-style="thumbStyle">
+               <q-item v-for="(comment, index) in postComments"
+                      :key="index" class="q-pa-md column"
+                      clickable v-ripple
+              >
+                <div class="row">
+                  <q-item-section avatar>
+                    <q-avatar color="primary" text-color="white">
+                      {{ comment.user.name.substr(0, 1).toUpperCase() }}
+                    </q-avatar>
+                  </q-item-section>
+
+                  <q-item-section>
+                    <q-item-label>{{ comment.user.name }}</q-item-label>
+                    <q-item-label caption lines="1">{{ comment.user.email }}</q-item-label>
+                  </q-item-section>
+
+                  <q-item-section side>
+                    <q-icon name="chat_bubble" color="green" />
+                  </q-item-section>
+                </div>
+                <div class="q-mt-md">
+                  <q-item-section>
+                    <q-item-label class="text-subtitle1">{{comment.body}}</q-item-label>
+                  </q-item-section>
+                </div>
+              </q-item>
+              </q-scroll-area>
+            </q-list>
+          </q-card-section>
+          <q-card-section>
+            <q-card-section>
+              <q-input type="textarea" filled v-model="commentData.body" placeholder="Type your comment here"/>
+            </q-card-section>
+            <q-card-actions align="right">
+              <q-btn label="Cancel" @click="commentDialog = false" color="red" flat/>
+              <q-btn label="Post" color="positive" @click="postComment"/>
+            </q-card-actions>
+          </q-card-section>
+        </q-card>
+      </q-dialog>
     </div>
 </template>
 <script>
 import Post from 'components/Post'
+import Poste from 'src/Api/Post'
+import Comment from 'src/Api/Comment'
+import Like from 'src/Api/Like'
+const thumbStyle = {
+  right: '4px',
+  borderRadius: '5px',
+  backgroundColor: '#1ad20d',
+  width: '5px',
+  opacity: 0.75
+}
+const barStyle = {
+  right: '2px',
+  borderRadius: '9px',
+  backgroundColor: '#1ad20d',
+  width: '9px',
+  opacity: 0.2
+}
 export default {
   name: 'Index',
   data: () => ({
     postDialog: false,
+    commentDialog: false,
     previewImage: '',
+    barStyle,
+    thumbStyle,
     postData: {
       title: '',
       body: '',
       image: ''
     },
-    items: [{}, {}, {}, {}, {}, {}, {}]
+    commentData: {
+      body: ''
+    },
+    items: [{}, {}, {}, {}, {}, {}, {}],
+    posts: [],
+    selectedPostIndex: -1,
+    post: null,
+    postComments: [],
+    liked: false
   }),
   components: {
     Post
   },
+  created () {
+    this.$root.$on('initComment', () => {
+      this.commentDialog = true
+    })
+  },
+  mounted () {
+    this.getPosts()
+  },
   methods: {
+    getPosts () {
+      Poste.getPosts()
+        .then(response => {
+          this.posts = response.data.data
+          // if (response.data.data.likes.length > 0) {
+          //   this.liked = true
+          // }
+          console.log(response.data)
+        }).catch(error => {
+          console.log(error)
+        })
+    },
+    openCommentDialog (postIndex) {
+      this.selectedPostIndex = postIndex
+      this.post = []
+      Poste.getPost(postIndex)
+        .then(response => {
+          console.log(response.data.data)
+          this.post = response.data.data
+          if (response.data.data.comments.length !== 0) {
+            this.postComments = response.data.data.comments
+          } else {
+            this.postComments = []
+          }
+          // if (response.data.data.likes.length > 0) {
+          //   this.liked = true
+          // }
+        }).catch(error => {
+          console.log(error)
+        })
+      this.commentDialog = true
+    },
+    postComment () {
+      Comment.comment(this.commentData, this.post)
+        .then(response => {
+          console.log('Comment posted successfully')
+          this.commentData.body = ''
+        }).catch(error => {
+          console.log(error)
+        })
+    },
+    postLike (postIndex) {
+      Poste.getPost(postIndex).then(response => {
+        if (response.data.data.likes.length > 1) {
+          console.log('you cannot like twice')
+        } else {
+          Like.like(response.data.data)
+            .then(() => {
+              console.log('Post was liked')
+              this.getPosts()
+              this.liked = true
+            }).catch(error => {
+              console.log(error)
+            })
+        }
+      })
+    },
     onLoad (index, done) {
       setTimeout(() => {
         if (this.items) {
@@ -104,6 +283,18 @@ export default {
       }, 2000)
     },
     submitPost () {
+      Poste.post(this.postData)
+        .then(() => {
+          console.log('Posted successfully')
+          this.postData.title = ''
+          this.postData.body = ''
+          this.getPosts()
+          this.postDialog = false
+        }).catch(error => {
+          console.log(error)
+        })
+    },
+    submitComment () {
       //
     },
     onImageChange (e) {
@@ -166,6 +357,15 @@ export default {
 }
 .post-dialog::-webkit-scrollbar{
   width: 3px;
+}
+@media only screen and (max-width: 450px) {
+  .q-px-md{
+    padding-left: 5px;
+    padding-right: 5px;
+  }
+  .q-item{
+    padding: 8px 5px;
+  }
 }
 /*@import "tailwindcss/base";*/
 
