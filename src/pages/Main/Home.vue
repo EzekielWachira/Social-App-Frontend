@@ -33,23 +33,54 @@
                   <div class="text-subtitle1">{{post.created_at}}</div>
                 </div>
                 <q-space/>
-                <q-btn icon="more_horiz" flat dense round/>
+                <q-btn icon="more_horiz" flat dense style="height: 40px;">
+                  <q-menu :offset="[150, 0]">
+                    <q-list style="min-width: 100px">
+                      <q-item clickable v-close-popup>
+                        <q-item-section>Save this post</q-item-section>
+                        <q-item-section side>
+                          <q-icon name="save" color="deep-orange-13"/>
+                        </q-item-section>
+                      </q-item>
+                      <q-item clickable v-close-popup>
+                        <q-item-section>Share this post</q-item-section>
+                        <q-item-section side>
+                          <q-icon name="share" color="green"/>
+                        </q-item-section>
+                      </q-item>
+                      <q-item clickable v-close-popup>
+                        <q-item-section>Edit this post</q-item-section>
+                        <q-item-section side>
+                          <q-icon name="create" color="blue"/>
+                        </q-item-section>
+                      </q-item>
+                      <q-item clickable v-close-popup>
+                        <q-item-section>Message Author</q-item-section>
+                        <q-item-section side>
+                          <q-icon name="message" color="pink"/>
+                        </q-item-section>
+                      </q-item>
+                    </q-list>
+                  </q-menu>
+                </q-btn>
               </q-card-section>
               <q-card-section>
                 <div class="text-h6">{{post.title}}</div>
               </q-card-section>
-              <q-card-section>
-                <div class="bg-blue text-white" style="height: 70px;">{{post.body}}</div>
+              <q-card-section class="q-pt-none">
+                <div class="rounded-borders text-white q-pa-md"
+                     style="height: auto; background: linear-gradient(to right, #fc466b, #3f5efb);"
+                >{{post.body}}</div>
               </q-card-section>
               <q-separator spaced/>
               <q-card-actions align="left">
-                <q-btn icon="thumb_up" flat round :color="post.likes.length > 0 ? 'primary' : 'grey-8'"
-                       @click="postLike(index + 1)"/>
-                <q-btn icon="comment" flat round @click="openCommentDialog(index + 1)"/>
+                <q-btn icon="thumb_up" flat round :color="post.likes.length > 0 ? 'positive' : 'grey-8'"
+                       @click="postLike(posts.length - index)"/>
+                <q-btn icon="comment" flat round @click="openCommentDialog( posts.length - index)"/>
                 <q-btn icon="share" flat round/>
                 <div class="row q-gutter-x-sm">
-                  <div class="text-subtitle2">12 Likes 💙</div>
-                  <div class="text-subtitle2">2 Comments 🤙</div>
+                  <div class="text-subtitle2">{{post.likes.length}} Likes 💙</div>
+                  <div class="text-subtitle2">{{post.comments.length}} Comments 🤙</div>
                 </div>
               </q-card-actions>
             </q-card>
@@ -149,10 +180,24 @@
               </q-item>
               </q-scroll-area>
             </q-list>
+            <div v-else>
+              <q-card square>
+                <q-card-section>No comments for this post. Be the first one to comment</q-card-section>
+              </q-card>
+            </div>
           </q-card-section>
           <q-card-section>
             <q-card-section>
-              <q-input type="textarea" filled v-model="commentData.body" placeholder="Type your comment here"/>
+              <q-input type="textarea" filled
+                       v-model="commentData.body" placeholder="Type your comment here"
+              />
+              <TwemojiTextarea :emojiData="emojiDataAll"
+                               :emojiGroups="emojiGroups"
+                               v-model="commentData.body"
+                               placeholder="Type your comment here"
+                               @keyup.enter="postComment"
+              >
+              </TwemojiTextarea>
             </q-card-section>
             <q-card-actions align="right">
               <q-btn label="Cancel" @click="commentDialog = false" color="red" flat/>
@@ -168,6 +213,9 @@ import Post from 'components/Post'
 import Poste from 'src/Api/Post'
 import Comment from 'src/Api/Comment'
 import Like from 'src/Api/Like'
+import { TwemojiTextarea } from '@kevinfaguiar/vue-twemoji-picker'
+import EmojiAllData from '@kevinfaguiar/vue-twemoji-picker/emoji-data/en/emoji-all-groups.json'
+import EmojiGroups from '@kevinfaguiar/vue-twemoji-picker/emoji-data/emoji-groups.json'
 const thumbStyle = {
   right: '4px',
   borderRadius: '5px',
@@ -206,7 +254,8 @@ export default {
     liked: false
   }),
   components: {
-    Post
+    Post,
+    TwemojiTextarea
   },
   created () {
     this.$root.$on('initComment', () => {
@@ -215,6 +264,14 @@ export default {
   },
   mounted () {
     this.getPosts()
+  },
+  computed: {
+    emojiDataAll () {
+      return EmojiAllData
+    },
+    emojiGroups () {
+      return EmojiGroups
+    }
   },
   methods: {
     getPosts () {
@@ -229,8 +286,7 @@ export default {
           console.log(error)
         })
     },
-    openCommentDialog (postIndex) {
-      this.selectedPostIndex = postIndex
+    getPost (postIndex) {
       this.post = []
       Poste.getPost(postIndex)
         .then(response => {
@@ -241,12 +297,13 @@ export default {
           } else {
             this.postComments = []
           }
-          // if (response.data.data.likes.length > 0) {
-          //   this.liked = true
-          // }
         }).catch(error => {
           console.log(error)
         })
+    },
+    openCommentDialog (postIndex) {
+      this.selectedPostIndex = postIndex
+      this.getPost(postIndex)
       this.commentDialog = true
     },
     postComment () {
@@ -254,14 +311,25 @@ export default {
         .then(response => {
           console.log('Comment posted successfully')
           this.commentData.body = ''
+          this.getPost(this.selectedPostIndex)
+          this.getPosts()
         }).catch(error => {
           console.log(error)
         })
     },
     postLike (postIndex) {
+      console.log(postIndex)
       Poste.getPost(postIndex).then(response => {
-        if (response.data.data.likes.length > 1) {
+        if (response.data.data.likes.length === 1) {
           console.log('you cannot like twice')
+          Like.deleteLike(response.data.data.likes[0].id)
+            .then(response => {
+              console.log(response.data.message)
+              this.getPosts()
+            }).catch(error => {
+              console.log(error)
+            })
+          console.log(response.data.data)
         } else {
           Like.like(response.data.data)
             .then(() => {
@@ -366,6 +434,12 @@ export default {
   .q-item{
     padding: 8px 5px;
   }
+}
+#emoji-popup{
+  width: 100% !important;
+}
+.emoji-popover-inner{
+  width: 100% !important;
 }
 /*@import "tailwindcss/base";*/
 
