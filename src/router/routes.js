@@ -9,10 +9,16 @@ const routes = [
         component: () => import('pages/Index.vue'),
         meta: { requiresAuth: true },
         children: [
-          {
-            path: '/home',
-            component: () => import('pages/Main/Home')
-          }
+          { path: '/home', component: () => import('pages/Main/Home') },
+          { path: '/events', component: () => import('pages/Main/Events') },
+          { path: '/calendar', component: () => import('pages/Main/Calendar') },
+          { path: '/forums', component: () => import('pages/Main/Forums') },
+          { path: '/bookmarks', component: () => import('pages/Main/Bookmarks') },
+          { path: '/tags', component: () => import('pages/Main/Tags') },
+          { path: '/topics', component: () => import('pages/Main/Topics') },
+          { path: '/files', component: () => import('pages/Main/Files') },
+          { path: '/meetings', component: () => import('pages/Main/Meetings') },
+          { path: '/todos', component: () => import('pages/Main/Todos') }
         ]
       }
     ]

@@ -9,7 +9,7 @@
               </q-card-section>
               <q-separator spaced/>
               <q-card-section class="row q-pt-none">
-                <q-btn color="positive" no-caps icon-right="add" label="Create Post" dense class="q-px-xs"
+                <q-btn color="positive" glossy no-caps icon-right="add" label="Create Post" dense class="q-px-xs"
                        @click="postDialog = true"/>
                 <q-space/>
                 <div class="row">
@@ -212,6 +212,7 @@
 import Post from 'components/Post'
 import Poste from 'src/Api/Post'
 import Comment from 'src/Api/Comment'
+import User from 'src/Api/User'
 import Like from 'src/Api/Like'
 import { TwemojiTextarea } from '@kevinfaguiar/vue-twemoji-picker'
 import EmojiAllData from '@kevinfaguiar/vue-twemoji-picker/emoji-data/en/emoji-all-groups.json'
@@ -251,7 +252,10 @@ export default {
     selectedPostIndex: -1,
     post: null,
     postComments: [],
-    liked: false
+    liked: false,
+    user: null,
+    links: [],
+    meta: []
   }),
   components: {
     Post,
@@ -263,6 +267,7 @@ export default {
     })
   },
   mounted () {
+    this.getUser()
     this.getPosts()
   },
   computed: {
@@ -274,13 +279,20 @@ export default {
     }
   },
   methods: {
+    getUser () {
+      User.auth()
+        .then(response => {
+          console.log(response.data)
+          this.user = response.data
+        })
+    },
     getPosts () {
       Poste.getPosts()
         .then(response => {
           this.posts = response.data.data
-          // if (response.data.data.likes.length > 0) {
-          //   this.liked = true
-          // }
+          this.links.push(response.data.links)
+          console.log(response.data.links.next.substr(37, 1))
+          this.meta.push(response.data.meta)
           console.log(response.data)
         }).catch(error => {
           console.log(error)
@@ -320,31 +332,89 @@ export default {
     postLike (postIndex) {
       console.log(postIndex)
       Poste.getPost(postIndex).then(response => {
-        if (response.data.data.likes.length === 1) {
-          console.log('you cannot like twice')
-          Like.deleteLike(response.data.data.likes[0].id)
-            .then(response => {
-              console.log(response.data.message)
-              this.getPosts()
-            }).catch(error => {
-              console.log(error)
-            })
-          console.log(response.data.data)
+        if (response.data.data.likes.length !== 0) {
+          for (let i = 0; i < response.data.data.likes.length; i++) {
+            if (response.data.data.likes[i].user.id === this.user.id) {
+              console.log('you cannot like twice')
+              Like.deleteLike(response.data.data.likes[i].id)
+                .then(response => {
+                  console.log(response.data.message)
+                  this.getPosts()
+                }).catch(error => {
+                  console.log(error)
+                })
+              console.log(response.data.data)
+            } else {
+              Like.like(response.data.data)
+                .then(() => {
+                  console.log('Post was liked')
+                  console.log(response.data.data)
+                  this.getPosts()
+                  this.liked = true
+                }).catch(error => {
+                  console.log(error)
+                })
+            }
+          }
         } else {
           Like.like(response.data.data)
             .then(() => {
               console.log('Post was liked')
+              console.log(response.data.data)
               this.getPosts()
               this.liked = true
             }).catch(error => {
               console.log(error)
             })
         }
+        // if (response.data.data.likes[0].user.id === this.user.id) {
+        //   console.log('you cannot like twice')
+        //   Like.deleteLike(response.data.data.likes[0].id)
+        //     .then(response => {
+        //       console.log(response.data.message)
+        //       this.getPosts()
+        //     }).catch(error => {
+        //       console.log(error)
+        //     })
+        //   console.log(response.data.data)
+        // } else {
+        //   Like.like(response.data.data)
+        //     .then(() => {
+        //       console.log('Post was liked')
+        //       console.log(response.data.data)
+        //       this.getPosts()
+        //       this.liked = true
+        //     }).catch(error => {
+        //       console.log(error)
+        //     })
+        // }
       })
     },
     onLoad (index, done) {
+      let item = 0
       setTimeout(() => {
         if (this.items) {
+          for (let i = 0; i < this.links.length; i++) {
+            Poste.getNextPosts(this.links[item].next.substr(37, 1))
+              .then(response => {
+                this.posts.push(response.data.data)
+                this.links.push(response.data.links)
+                this.meta.push(response.data.meta)
+                item += 1
+                console.log(response.data)
+              }).catch(error => {
+                console.log(error)
+              })
+          }
+          // Poste.getNextPosts(this.links.next.substr(37, 1))
+          //   .then(response => {
+          //     this.posts.push(response.data.data)
+          //     this.links.push(response.data.links)
+          //     this.meta.push(response.data.meta)
+          //     console.log(response.data)
+          //   }).catch(error => {
+          //     console.log(error)
+          //   })
           this.items.push({}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {})
           done()
         }
