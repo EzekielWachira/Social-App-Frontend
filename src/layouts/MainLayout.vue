@@ -54,7 +54,7 @@
       <q-list padding class="rounded-borders" style="menu_list" >
 <!--        <q-item-label header class="q-mt-md q-ml-md text-h6 text-positive">Kkonnect</q-item-label>-->
 
-        <q-item clickable v-ripple v-for="link in links" :key="link.title">
+        <q-item clickable v-ripple v-for="link in links" :key="link.title" :to="link.linkTo">
           <q-item-section avatar top>
             <q-avatar :icon="link.icon" :color="link.badge_color" text-color="white" />
           </q-item-section>
@@ -77,19 +77,23 @@
         :bar-style="barStyle"
       >
       <div class="q-pa-md">
-        <q-card v-for="n in 10" :key="n" class="q-mb-sm" square>
+        <q-card v-for="n in 10" :key="n" class="q-mb-sm">
           <q-card-section class="row q-gutter-x-sm">
             <q-avatar color="blue">
               <q-img src="/images/ezzy.jpg"/>
             </q-avatar>
             <div class="column">
               <div class="text-subtitle1">Jane Doe</div>
-              <div class="text-subtitle2">Managing Director</div>
+              <div class="">Managing Director at Umoja Software</div>
             </div>
           </q-card-section>
           <q-card-actions align="right" class="q-pt-none">
             <q-space/>
-            <q-btn dense label="Follow" icon-right="add" class="q-px-xs" no-caps color="positive"/>
+<!--            <q-btn dense label="Follow" icon-right="add" class="q-px-xs" no-caps color="positive"/>-->
+            <q-btn class="absolute-top-right" icon="add"
+                   dense outline
+                    color="positive"
+            />
           </q-card-actions>
         </q-card>
       </div>
@@ -104,15 +108,15 @@
 
 <script>
 const links = [
-  { title: 'Events', icon: 'event', badge: 3, badge_color: 'orange' },
-  { title: 'Calendar', icon: 'today', badge: 5, badge_color: 'primary' },
-  { title: 'Forums', icon: 'forum', badge: 1, badge_color: 'accent' },
-  { title: 'Bookmarks', icon: 'bookmark', badge: 10, badge_color: 'secondary' },
-  { title: 'Tags', icon: 'tag', badge: 13, badge_color: 'blue' },
-  { title: 'Topics', icon: 'topic', badge: 7, badge_color: 'brown' },
-  { title: 'Files', icon: 'assignment', badge: 32, badge_color: 'teal' },
-  { title: 'Meetings', icon: 'group', badge: 5, badge_color: 'light-blue-14' },
-  { title: 'My Todos', icon: 'list', badge: 4, badge_color: 'purple' }
+  { title: 'Events', icon: 'event', badge: 3, badge_color: 'orange', linkTo: '/events' },
+  { title: 'Calendar', icon: 'today', badge: 5, badge_color: 'primary', linkTo: '/calendar' },
+  { title: 'Forums', icon: 'forum', badge: 1, badge_color: 'accent', linkTo: '/forums' },
+  { title: 'Bookmarks', icon: 'bookmark', badge: 10, badge_color: 'secondary', linkTo: '/bookmarks' },
+  { title: 'Tags', icon: 'tag', badge: 13, badge_color: 'blue', linkTo: '/tags' },
+  { title: 'Topics', icon: 'topic', badge: 7, badge_color: 'brown', linkTo: '/topics' },
+  { title: 'Files', icon: 'assignment', badge: 32, badge_color: 'teal', linkTo: '/files' },
+  { title: 'Meetings', icon: 'group', badge: 5, badge_color: 'light-blue-14', linkTo: '/meetings' },
+  { title: 'My Todos', icon: 'list', badge: 4, badge_color: 'purple', linkTo: '/todos' }
 ]
 const thumbStyle = {
   right: '4px',
@@ -135,6 +139,7 @@ export default {
     drawer: true,
     isLoggedIn: false,
     user: {},
+    users: {},
     rightDrawer: false,
     thumbStyle,
     barStyle

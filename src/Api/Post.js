@@ -10,6 +10,10 @@ export default {
     await Csrf.getCookie()
     return Api().get('/posts')
   },
+  async getNextPosts (page) {
+    Csrf.getCookie()
+    return Api().get(`/posts?page=${page}`)
+  },
   async updatePost (postId, postData) {
     await Csrf.getCookie()
     const editedItem = {
